@@ -3,13 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贪吃蛇</title>
+    <title>Vue 贪吃蛇 Pro</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 </head>
 <body>
-    <h1>贪吃蛇</h1>
-    <p>得分: <span id="score">0</span></p>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="app">
+        <div class="header">
+            <h1>{{ title }}</h1>
+            <div class="scoreboard">
+                <div>得分: <span>{{ score }}</span></div>
+                <div>最高分: <span>{{ highScore }}</span></div>
+            </div>
+        </div>
+        <div class="game-container">
+            <canvas ref="gameCanvas" width="400" height="400"></canvas>
+            <div v-if="gameIsOver" class="game-overlay">
+                <div>游戏结束</div>
+                <small>按 Enter 重新开始</small>
+            </div>
+            <div v-if="isPaused && !gameIsOver" class="game-overlay">
+                <div>已暂停</div>
+                <small>按 P 继续</small>
+            </div>
+        </div>
+        <div class="controls">
+            <button @click="togglePause">{{ isPaused ? '继续' : '暂停' }} (P)</button>
+            <div class="speed-controls">
+                <span>速度:</span>
+                <button @click="setSpeed('slow')" :class="{ active: speedName === 'slow' }">慢</button>
+                <button @click="setSpeed('normal')" :class="{ active: speedName === 'normal' }">中</button>
+                <button @click="setSpeed('fast')" :class="{ active: speedName === 'fast' }">快</button>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html> 

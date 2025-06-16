@@ -18,11 +18,14 @@
         </div>
         <div class="game-container">
             <canvas ref="gameCanvas" width="400" height="400"></canvas>
+            <div v-if="!gameHasStarted && !gameIsOver" class="game-overlay">
+                <button @click="startGame" class="start-btn">开始游戏</button>
+            </div>
             <div v-if="gameIsOver" class="game-overlay">
                 <div>游戏结束</div>
                 <small>按 Enter 重新开始</small>
             </div>
-            <div v-if="isPaused && !gameIsOver" class="game-overlay">
+            <div v-if="isPaused && !gameIsOver && gameHasStarted" class="game-overlay">
                 <div>已暂停</div>
                 <small>按 P 继续</small>
             </div>

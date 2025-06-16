@@ -6,6 +6,7 @@ new Vue({
         highScore: 0,
         gameIsOver: false,
         isPaused: false,
+        gameHasStarted: false,
         gridSize: 20,
         snake: [],
         food: {},
@@ -35,15 +36,38 @@ new Vue({
             this.ctx = this.canvas.getContext('2d');
             this.highScore = localStorage.getItem('snakeHighScore') || 0;
             document.addEventListener('keydown', this.handleKeyDown);
-            this.startGame();
+            this.resetGame();
+        },
+        resetGame() {
+            this.snake = [{ x: 10, y: 10 }];
+            this.direction = 'right';
+            this.score = 0;
+            this.gameIsOver = false;
+            this.isPaused = false;
+            this.gameHasStarted = false;
+            this.createFood();
+            
+            clearInterval(this.gameInterval);
+
+            // Defer drawing to allow Vue to update the DOM
+            this.$nextTick(() => {
+                this.clearCanvas();
+                this.drawFood();
+                this.drawSnake();
+            });
         },
         startGame() {
+            if (this.gameHasStarted) return;
+            this.gameHasStarted = true;
+            this.isPaused = false;
+            this.gameIsOver = false;
+            
+            // Reset snake and score for a fresh start
             this.snake = [{ x: 10, y: 10 }];
             this.score = 0;
             this.direction = 'right';
-            this.gameIsOver = false;
-            this.isPaused = false;
             this.createFood();
+
             this.runGame();
         },
         runGame() {
@@ -51,7 +75,7 @@ new Vue({
             this.gameInterval = setInterval(this.gameLoop, this.currentSpeed);
         },
         gameLoop() {
-            if (this.isPaused || this.gameIsOver) return;
+            if (this.isPaused || this.gameIsOver || !this.gameHasStarted) return;
             
             this.changingDirection = false;
             this.clearCanvas();
@@ -61,6 +85,7 @@ new Vue({
         },
         endGame() {
             this.gameIsOver = true;
+            this.gameHasStarted = false;
             if (this.score > this.highScore) {
                 this.highScore = this.score;
                 localStorage.setItem('snakeHighScore', this.score);
@@ -68,6 +93,7 @@ new Vue({
             clearInterval(this.gameInterval);
         },
         clearCanvas() {
+            if (!this.ctx) return;
             this.ctx.fillStyle = 'black';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         },
@@ -145,16 +171,16 @@ new Vue({
             const P_KEY = 80;
 
             if (event.keyCode === ENTER_KEY && this.gameIsOver) {
-                this.startGame();
+                this.resetGame();
                 return;
             }
             
-            if (event.keyCode === P_KEY && !this.gameIsOver) {
+            if (event.keyCode === P_KEY && !this.gameIsOver && this.gameHasStarted) {
                 this.togglePause();
                 return;
             }
 
-            if (this.changingDirection || this.isPaused) return;
+            if (this.changingDirection || this.isPaused || !this.gameHasStarted) return;
             this.changingDirection = true;
 
             const keyPressed = event.keyCode;

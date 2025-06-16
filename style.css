@@ -1,19 +1,108 @@
 body {
-    background-color: #f0f0f0;
+    background-color: #f0f8ff; /* AliceBlue */
     color: #333;
-    font-family: Arial, sans-serif;
-    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    padding: 20px;
+}
+
+#app {
+    background-color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px M10px rgba(0,0,0,0.1);
+    text-align: center;
+    min-width: 450px;
+}
+
+.header {
+    margin-bottom: 20px;
 }
 
 h1 {
-    color: #444;
+    color: #2c3e50; /* Darker blue-gray */
+    margin: 0;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    font-size: 18px;
+    color: #34495e; /* Wet Asphalt */
+    margin-top: 10px;
+}
+
+.game-container {
+    position: relative; /* For overlay positioning */
 }
 
 canvas {
     background-color: #000;
     border: 3px solid #333;
     display: block;
-    margin: 20px auto;
+    margin: 0 auto;
+}
+
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.game-overlay small {
+    font-size: 20px;
+    margin-top: 10px;
+    font-weight: normal;
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    background-color: #3498db; /* Peter River */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9; /* Belize Hole */
+}
+
+.speed-controls span {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.speed-controls button {
+    margin-left: 5px;
+    background-color: #ecf0f1; /* Clouds */
+    color: #333;
+}
+
+.speed-controls button.active {
+    background-color: #2ecc71; /* Emerald */
+    color: white;
 } 

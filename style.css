@@ -130,4 +130,10 @@ button:hover {
 
 .start-btn:hover {
     background-color: #45a049;
-} 
+}
+
+.tutorial-overlay .tutorial-text {
+    font-size: 20px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}

@@ -1,133 +1,141 @@
-const canvas = document.getElementById('game');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
+
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
+
 let snake = [{ x: 10, y: 10 }];
-let apple = { x: 15, y: 15 };
-let velocity = { x: 0, y: 0 };
+let food = {};
 let score = 0;
-let gameOver = false;
-let gameInterval;
+let direction = 'right';
+let changingDirection = false;
+let gameIsOver = false;
 
-function init() {
-    snake = [{ x: 10, y: 10 }];
-    velocity = { x: 0, y: 0 };
-    score = 0;
-    gameOver = false;
-    placeApple();
-    if (gameInterval) {
-        clearInterval(gameInterval);
-    }
-    gameInterval = setInterval(gameLoop, 1000 / 10); // 10 fps
-    draw();
-}
-
-function placeApple() {
-    apple.x = Math.floor(Math.random() * tileCount);
-    apple.y = Math.floor(Math.random() * tileCount);
-
-    // Ensure apple is not placed on the snake
-    for (let i = 0; i < snake.length; i++) {
-        if (snake[i].x === apple.x && snake[i].y === apple.y) {
-            placeApple();
-            return;
-        }
-    }
-}
-
-function gameLoop() {
-    if (gameOver) {
-        clearInterval(gameInterval);
-        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = "white";
-        ctx.font = "40px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 20);
-        ctx.font = "20px Arial";
-        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
-        ctx.font = "16px Arial";
-        ctx.fillText("Press 'Enter' to Restart", canvas.width / 2, canvas.height / 2 + 50);
-        return;
-    }
-    update();
-    draw();
-}
-
-function update() {
-    const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
-
-    // Wall collision
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-        gameOver = true;
+function main() {
+    if (gameIsOver) {
+        ctx.fillStyle = 'white';
+        ctx.font = '40px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('游戏结束', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.font = '20px Arial';
+        ctx.fillText('按 Enter 重新开始', canvas.width / 2, canvas.height / 2 + 20);
         return;
     }
 
-    // Self collision
-    for (let i = 1; i < snake.length; i++) {
-        if (head.x === snake[i].x && head.y === snake[i].y) {
-            gameOver = true;
-            return;
-        }
+    changingDirection = false;
+    setTimeout(function onTick() {
+        clearCanvas();
+        drawFood();
+        moveSnake();
+        drawSnake();
+        main();
+    }, 120);
+}
+
+function clearCanvas() {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawSnake() {
+    ctx.fillStyle = 'lightgreen';
+    snake.forEach(part => {
+        ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
+    });
+}
+
+function moveSnake() {
+    const head = { x: snake[0].x, y: snake[0].y };
+
+    switch (direction) {
+        case 'up': head.y -= 1; break;
+        case 'down': head.y += 1; break;
+        case 'left': head.x -= 1; break;
+        case 'right': head.x += 1; break;
     }
+    
+    checkCollision(head);
+    if (gameIsOver) return;
 
     snake.unshift(head);
 
-    // Apple collision
-    if (head.x === apple.x && head.y === apple.y) {
-        score++;
-        placeApple();
+    if (head.x === food.x && head.y === food.y) {
+        score += 10;
+        scoreElement.textContent = score;
+        createFood();
     } else {
-        // Do not pop if velocity is 0 (at start)
-        if (velocity.x !== 0 || velocity.y !== 0) {
-            snake.pop();
+        snake.pop();
+    }
+}
+
+function changeDirection(event) {
+    const LEFT_KEY = 37;
+    const RIGHT_KEY = 39;
+    const UP_KEY = 38;
+    const DOWN_KEY = 40;
+    const ENTER_KEY = 13;
+
+    if (event.keyCode === ENTER_KEY && gameIsOver) {
+        restartGame();
+        return;
+    }
+
+    if (changingDirection) return;
+    changingDirection = true;
+
+    const keyPressed = event.keyCode;
+    const goingUp = direction === 'up';
+    const goingDown = direction === 'down';
+    const goingRight = direction === 'right';
+    const goingLeft = direction === 'left';
+
+    if (keyPressed === LEFT_KEY && !goingRight) direction = 'left';
+    if (keyPressed === UP_KEY && !goingDown) direction = 'up';
+    if (keyPressed === RIGHT_KEY && !goingLeft) direction = 'right';
+    if (keyPressed === DOWN_KEY && !goingUp) direction = 'down';
+}
+
+function createFood() {
+    food.x = Math.floor(Math.random() * tileCount);
+    food.y = Math.floor(Math.random() * tileCount);
+    snake.forEach(function isFoodOnSnake(part) {
+        if (part.x === food.x && part.y === food.y) {
+            createFood();
+        }
+    });
+}
+
+function drawFood() {
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+}
+
+function checkCollision(head) {
+    // Wall collision
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        gameIsOver = true;
+        return;
+    }
+    // Self collision
+    for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+            gameIsOver = true;
+            return;
         }
     }
 }
 
-function draw() {
-    // Clear canvas
-    ctx.fillStyle = '#f2f2f2';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw snake
-    ctx.fillStyle = 'green';
-    snake.forEach(({ x, y }) => {
-        ctx.fillRect(x * gridSize, y * gridSize, gridSize - 1, gridSize - 1);
-    });
-
-    // Draw apple
-    ctx.fillStyle = 'red';
-    ctx.fillRect(apple.x * gridSize, apple.y * gridSize, gridSize - 1, gridSize - 1);
-
-    // Draw score
-    ctx.fillStyle = 'black';
-    ctx.font = "20px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText(`Score: ${score}`, 10, 25);
+function restartGame() {
+    snake = [{ x: 10, y: 10 }];
+    score = 0;
+    scoreElement.textContent = score;
+    direction = 'right';
+    gameIsOver = false;
+    createFood();
+    main();
 }
 
-document.addEventListener('keydown', (e) => {
-    if (gameOver && e.key === 'Enter') {
-        init();
-        return;
-    }
-    
-    switch (e.key) {
-        case 'ArrowUp':
-            if (velocity.y !== 1) velocity = { x: 0, y: -1 };
-            break;
-        case 'ArrowDown':
-            if (velocity.y !== -1) velocity = { x: 0, y: 1 };
-            break;
-        case 'ArrowLeft':
-            if (velocity.x !== 1) velocity = { x: -1, y: 0 };
-            break;
-        case 'ArrowRight':
-            if (velocity.x !== -1) velocity = { x: 1, y: 0 };
-            break;
-    }
-});
-
-init();
+document.addEventListener('keydown', changeDirection);
+createFood();
+main(); 

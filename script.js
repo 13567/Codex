@@ -2,6 +2,7 @@ new Vue({
     el: '#app',
     data: {
         title: 'Vue 贪吃蛇 Pro',
+        currentView: 'menu',
         score: 0,
         highScore: 0,
         gameIsOver: false,
@@ -32,7 +33,7 @@ new Vue({
         }
     },
     methods: {
-        init() {
+        initSnake() {
             this.canvas = this.$refs.gameCanvas;
             this.ctx = this.canvas.getContext('2d');
             this.highScore = localStorage.getItem('snakeHighScore') || 0;
@@ -169,6 +170,23 @@ new Vue({
         closeTutorial() {
             this.showTutorial = false;
         },
+        selectGame(game) {
+            this.currentView = game;
+            if (game === 'snake') {
+                this.$nextTick(this.initSnake);
+            } else if (game === 'mario') {
+                marioGame.init();
+            }
+        },
+        goToMenu() {
+            if (this.currentView === 'snake') {
+                document.removeEventListener('keydown', this.handleKeyDown);
+                clearInterval(this.gameInterval);
+            } else if (this.currentView === 'mario') {
+                marioGame.stop();
+            }
+            this.currentView = 'menu';
+        },
         handleKeyDown(event) {
             const LEFT_KEY = 37;
             const RIGHT_KEY = 39;
@@ -203,10 +221,13 @@ new Vue({
         }
     },
     mounted() {
-        this.init();
+        if (this.currentView === 'snake') {
+            this.$nextTick(this.initSnake);
+        }
     },
     beforeDestroy() {
         document.removeEventListener('keydown', this.handleKeyDown);
         clearInterval(this.gameInterval);
+        marioGame.stop && marioGame.stop();
     }
-}); 
+});

@@ -3,52 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vue 贪吃蛇 Pro</title>
+    <title>小游戏合集</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 </head>
 <body>
     <div id="app">
-        <div class="header">
-            <h1>{{ title }}</h1>
-            <div class="scoreboard">
-                <div>得分: <span>{{ score }}</span></div>
-                <div>最高分: <span>{{ highScore }}</span></div>
-            </div>
+        <div v-if="currentView === 'menu'" class="menu-overlay">
+            <h2>选择游戏</h2>
+            <button @click="selectGame('snake')" class="start-btn">贪吃蛇</button>
+            <button @click="selectGame('mario')" class="start-btn">超级玛丽</button>
         </div>
-        <div class="game-container">
-            <canvas ref="gameCanvas" width="400" height="400"></canvas>
-            <div v-if="!gameHasStarted && !gameIsOver" class="game-overlay">
-                <button @click="startGame" class="start-btn">开始游戏</button>
-            </div>
-            <div v-if="gameIsOver" class="game-overlay">
-                <div>游戏结束</div>
-                <small>按 Enter 重新开始</small>
-            </div>
-            <div v-if="isPaused && !gameIsOver && gameHasStarted" class="game-overlay">
-                <div>已暂停</div>
-                <small>按 P 继续</small>
-            </div>
-            <div v-if="showTutorial" class="game-overlay tutorial-overlay">
-                <div class="tutorial-text">
-                    <p>使用方向键控制移动。</p>
-                    <p>P 键暂停/继续，Enter 键重新开始。</p>
-                    <p>点击下方速度按钮可调整游戏速度。</p>
+
+        <div v-if="currentView === 'snake'" class="snake-wrapper">
+            <div class="header">
+                <h1>{{ title }}</h1>
+                <div class="scoreboard">
+                    <div>得分: <span>{{ score }}</span></div>
+                    <div>最高分: <span>{{ highScore }}</span></div>
                 </div>
-                <button @click="closeTutorial" class="start-btn">关闭教程</button>
             </div>
+            <div class="game-container">
+                <canvas ref="gameCanvas" width="400" height="400"></canvas>
+                <div v-if="!gameHasStarted && !gameIsOver" class="game-overlay">
+                    <button @click="startGame" class="start-btn">开始游戏</button>
+                </div>
+                <div v-if="gameIsOver" class="game-overlay">
+                    <div>游戏结束</div>
+                    <small>按 Enter 重新开始</small>
+                </div>
+                <div v-if="isPaused && !gameIsOver && gameHasStarted" class="game-overlay">
+                    <div>已暂停</div>
+                    <small>按 P 继续</small>
+                </div>
+                <div v-if="showTutorial" class="game-overlay tutorial-overlay">
+                    <div class="tutorial-text">
+                        <p>使用方向键控制移动。</p>
+                        <p>P 键暂停/继续，Enter 键重新开始。</p>
+                        <p>点击下方速度按钮可调整游戏速度。</p>
+                    </div>
+                    <button @click="closeTutorial" class="start-btn">关闭教程</button>
+                </div>
+            </div>
+            <div class="controls">
+                <button @click="togglePause">{{ isPaused ? '继续' : '暂停' }} (P)</button>
+                <div class="speed-controls">
+                    <span>速度:</span>
+                    <button @click="setSpeed('slow')" :class="{ active: speedName == 'slow' }">慢</button>
+                    <button @click="setSpeed('normal')" :class="{ active: speedName === 'normal' }">中</button>
+                    <button @click="setSpeed('fast')" :class="{ active: speedName == 'fast' }">快</button>
+                </div>
+                <button @click="openTutorial">教程</button>
+            </div>
+            <button class="menu-btn" @click="goToMenu">返回选单</button>
         </div>
-        <div class="controls">
-            <button @click="togglePause">{{ isPaused ? '继续' : '暂停' }} (P)</button>
-            <div class="speed-controls">
-                <span>速度:</span>
-                <button @click="setSpeed('slow')" :class="{ active: speedName === 'slow' }">慢</button>
-                <button @click="setSpeed('normal')" :class="{ active: speedName === 'normal' }">中</button>
-                <button @click="setSpeed('fast')" :class="{ active: speedName === 'fast' }">快</button>
+
+        <div v-if="currentView === 'mario'" class="mario-wrapper">
+            <div class="header">
+                <h1>超级玛丽</h1>
             </div>
-            <button @click="openTutorial">教程</button>
+            <div class="game-container">
+                <canvas id="marioCanvas" width="400" height="400"></canvas>
+            </div>
+            <button class="menu-btn" @click="goToMenu">返回选单</button>
         </div>
     </div>
+
+    <script src="mario.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

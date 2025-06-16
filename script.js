@@ -21,6 +21,7 @@ new Vue({
             fast: 70,
         },
         speedName: 'normal',
+        showTutorial: false,
     },
     computed: {
         tileCount() {
@@ -161,6 +162,12 @@ new Vue({
             if (!this.isPaused && !this.gameIsOver) {
                 this.runGame();
             }
+        },
+        openTutorial() {
+            this.showTutorial = true;
+        },
+        closeTutorial() {
+            this.showTutorial = false;
         },
         handleKeyDown(event) {
             const LEFT_KEY = 37;

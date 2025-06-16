@@ -29,6 +29,14 @@
                 <div>已暂停</div>
                 <small>按 P 继续</small>
             </div>
+            <div v-if="showTutorial" class="game-overlay tutorial-overlay">
+                <div class="tutorial-text">
+                    <p>使用方向键控制移动。</p>
+                    <p>P 键暂停/继续，Enter 键重新开始。</p>
+                    <p>点击下方速度按钮可调整游戏速度。</p>
+                </div>
+                <button @click="closeTutorial" class="start-btn">关闭教程</button>
+            </div>
         </div>
         <div class="controls">
             <button @click="togglePause">{{ isPaused ? '继续' : '暂停' }} (P)</button>
@@ -38,8 +46,9 @@
                 <button @click="setSpeed('normal')" :class="{ active: speedName === 'normal' }">中</button>
                 <button @click="setSpeed('fast')" :class="{ active: speedName === 'fast' }">快</button>
             </div>
+            <button @click="openTutorial">教程</button>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
-</html> 
+</html>

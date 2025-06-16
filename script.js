@@ -30,18 +30,18 @@ function update() {
   head.x = (head.x + tileCount) % tileCount;
   head.y = (head.y + tileCount) % tileCount;
 
-  // check collision with self
-  if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-    reset();
-    return;
-  }
-
   snake.unshift(head);
 
   if (head.x === apple.x && head.y === apple.y) {
     placeApple();
   } else {
     snake.pop();
+  }
+
+  // check collision with self (ignore when standing still)
+  if ((velocity.x !== 0 || velocity.y !== 0) &&
+      snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+    reset();
   }
 }
 
